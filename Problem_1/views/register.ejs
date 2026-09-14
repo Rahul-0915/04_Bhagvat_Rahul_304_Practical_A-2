@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Register</title>
+    <style>
+      body {
+        font-family: Arial;
+        max-width: 400px;
+        margin: 50px auto;
+        padding: 20px;
+        background: #f4f4f4;
+      }
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      input {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+      button {
+        width: 100%;
+        padding: 10px;
+        background: #28a745;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      button:hover {
+        background: #218838;
+      }
+      .error {
+        color: red;
+        background: #f8d7da;
+        padding: 10px;
+        border-radius: 5px;
+        margin: 10px 0;
+      }
+      .success {
+        color: green;
+        background: #d4edda;
+        padding: 10px;
+        border-radius: 5px;
+        margin: 10px 0;
+      }
+      h1 {
+        text-align: center;
+        color: #333;
+      }
+      a {
+        color: #007bff;
+        text-decoration: none;
+      }
+      .links {
+        text-align: center;
+        margin-top: 15px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Register</h1>
+
+      <div id="message"></div>
+
+      <form id="registerForm">
+        <input type="text" id="name" placeholder="Full Name" required />
+        <input type="email" id="email" placeholder="Email Address" required />
+        <input
+          type="password"
+          id="password"
+          placeholder="Password (min 6 chars)"
+          required
+          minlength="6"
+        />
+        <button type="submit">Register</button>
+      </form>
+
+      <div class="links">
+        Already have an account? <a href="/login">Login</a>
+      </div>
+    </div>
+
+    <script>
+      document
+        .getElementById("registerForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const name = document.getElementById("name").value;
+          const email = document.getElementById("email").value;
+          const password = document.getElementById("password").value;
+
+          const messageDiv = document.getElementById("message");
+
+          try {
+            const response = await fetch("/api/auth/register", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ name, email, password }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+              messageDiv.innerHTML = `<div class="success">${data.message}</div>`;
+              // Save token for later use
+              localStorage.setItem("token", data.token);
+              localStorage.setItem("user", JSON.stringify(data.user));
+
+              // Redirect to dashboard after 2 seconds
+              setTimeout(() => {
+                window.location.href = "/dashboard";
+              }, 2000);
+            } else {
+              messageDiv.innerHTML = `<div class="error"> ${data.error || data.message || "Registration failed"}</div>`;
+            }
+          } catch (error) {
+            messageDiv.innerHTML = `<div class="error"> Network error: ${error.message}</div>`;
+          }
+        });
+    </script>
+  </body>
+</html>

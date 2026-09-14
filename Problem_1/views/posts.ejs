@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Blog Posts</title>
+    <style>
+      body {
+        font-family: Arial;
+        max-width: 800px;
+        margin: 50px auto;
+        padding: 20px;
+        background: #f4f4f4;
+      }
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 15px;
+      }
+      .post {
+        border: 1px solid #ddd;
+        padding: 20px;
+        margin: 15px 0;
+        border-radius: 5px;
+        background: #f9f9f9;
+      }
+      .post h2 {
+        margin: 0 0 10px 0;
+        color: #333;
+      }
+      .post-meta {
+        color: #666;
+        font-size: 14px;
+        margin: 5px 0;
+      }
+      .post img {
+        max-width: 100%;
+        height: auto;
+        margin: 10px 0;
+        border-radius: 5px;
+      }
+      .post-content {
+        margin: 10px 0;
+        line-height: 1.6;
+      }
+      .tags {
+        display: inline-block;
+        background: #e9ecef;
+        padding: 3px 10px;
+        border-radius: 12px;
+        font-size: 12px;
+        margin: 3px;
+      }
+      .btn {
+        padding: 8px 15px;
+        margin: 5px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+      }
+      .btn-primary {
+        background: #007bff;
+        color: white;
+      }
+      .btn-success {
+        background: #28a745;
+        color: white;
+      }
+      .no-posts {
+        text-align: center;
+        color: #666;
+        padding: 40px;
+      }
+      .error {
+        color: red;
+        background: #f8d7da;
+        padding: 10px;
+        border-radius: 5px;
+        margin: 10px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Blog Posts</h1>
+        <div>
+          <a href="/dashboard" class="btn btn-primary">Dashboard</a>
+          <a href="/login" class="btn btn-success">Login</a>
+        </div>
+      </div>
+
+      <div id="postsContainer"></div>
+    </div>
+
+    <script>
+      // Load published posts
+      async function loadPosts() {
+        try {
+          const response = await fetch("/api/posts/public");
+          const data = await response.json();
+
+          const container = document.getElementById("postsContainer");
+
+          if (response.ok && data.posts && data.posts.length > 0) {
+            let html = "";
+            data.posts.forEach((post) => {
+              html += `
+                <div class="post">
+                  <h2>${post.title}</h2>
+                  <div class="post-meta">By: ${post.author ? post.author.name : "Unknown"} | ${new Date(post.createdAt).toLocaleDateString()}</div>
+                  ${post.featuredImage ? `<img src="/${post.featuredImage}" alt="Featured Image">` : ""}
+                  <div class="post-content">${post.content}</div>
+                  <div>
+                    ${post.tags && post.tags.length > 0 ? post.tags.map((t) => `<span class="tags">#${t}</span>`).join("") : ""}
+                  </div>
+                </div>
+              `;
+            });
+            container.innerHTML = html;
+          } else {
+            container.innerHTML = `<div class="no-posts"> No published posts available.</div>`;
+          }
+        } catch (error) {
+          document.getElementById("postsContainer").innerHTML =
+            `<div class="error"> Error loading posts: ${error.message}</div>`;
+        }
+      }
+
+      // Load posts on page load
+      window.onload = loadPosts;
+    </script>
+  </body>
+</html>

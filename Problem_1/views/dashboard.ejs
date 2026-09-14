@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Dashboard</title>
+    <style>
+      body {
+        font-family: Arial;
+        max-width: 900px;
+        margin: 50px auto;
+        padding: 20px;
+        background: #f4f4f4;
+      }
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 15px;
+      }
+      .post {
+        border: 1px solid #ddd;
+        padding: 20px;
+        margin: 15px 0;
+        border-radius: 5px;
+        background: #f9f9f9;
+      }
+      .post img {
+        max-width: 200px;
+        height: auto;
+        margin: 10px 0;
+        border-radius: 5px;
+      }
+      .post-image-container {
+        margin: 10px 0;
+      }
+      .btn {
+        padding: 8px 15px;
+        margin: 5px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 14px;
+      }
+      .btn-create {
+        background: #28a745;
+        color: white;
+      }
+      .btn-edit {
+        background: #007bff;
+        color: white;
+      }
+      .btn-delete {
+        background: #dc3545;
+        color: white;
+      }
+      .btn-upload {
+        background: #17a2b8;
+        color: white;
+      }
+      .btn-logout {
+        background: #6c757d;
+        color: white;
+      }
+      .btn-publish {
+        background: #ffc107;
+        color: #333;
+      }
+      .btn-unpublish {
+        background: #6c757d;
+        color: white;
+      }
+      .status-published {
+        background: #d4edda;
+        color: #155724;
+        padding: 3px 10px;
+        border-radius: 12px;
+        font-size: 12px;
+        display: inline-block;
+      }
+      .status-draft {
+        background: #fff3cd;
+        color: #856404;
+        padding: 3px 10px;
+        border-radius: 12px;
+        font-size: 12px;
+        display: inline-block;
+      }
+      .form-group {
+        margin: 15px 0;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      .form-group input,
+      .form-group textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        box-sizing: border-box;
+      }
+      /*  CHECKBOX STYLE - FIXED */
+      .checkbox-group {
+        margin: 15px 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .checkbox-group input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+        margin: 0;
+      }
+      .checkbox-group label {
+        font-weight: bold;
+        cursor: pointer;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+      }
+      .modal-content {
+        background: white;
+        max-width: 500px;
+        margin: 50px auto;
+        padding: 30px;
+        border-radius: 10px;
+      }
+      .error {
+        color: red;
+        background: #f8d7da;
+        padding: 10px;
+        border-radius: 5px;
+        margin: 10px 0;
+      }
+      .success {
+        color: green;
+        background: #d4edda;
+        padding: 10px;
+        border-radius: 5px;
+        margin: 10px 0;
+      }
+      .no-posts {
+        text-align: center;
+        color: #666;
+        padding: 30px;
+      }
+      .post-meta {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 10px 0;
+        flex-wrap: wrap;
+      }
+      .post-actions {
+        margin: 10px 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+      }
+      .post-date {
+        color: #666;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div>
+          <h1>Dashboard</h1>
+          <p>Welcome, <strong id="userName">User</strong>!</p>
+        </div>
+        <div>
+          <a href="/posts" class="btn" style="background: #17a2b8; color: white"
+            >View Posts</a
+          >
+          <button onclick="logout()" class="btn btn-logout">Logout</button>
+        </div>
+      </div>
+
+      <div id="message"></div>
+
+      <button onclick="showCreateForm()" class="btn btn-create">
+        Create New Post
+      </button>
+
+      <!--  CREATE FORM WITH FIXED CHECKBOX -->
+      <div
+        id="createForm"
+        style="
+          display: none;
+          margin: 20px 0;
+          padding: 20px;
+          border: 1px solid #ddd;
+          border-radius: 5px;
+        "
+      >
+        <h3>Create New Post</h3>
+        <div class="form-group">
+          <label>Title</label>
+          <input type="text" id="postTitle" placeholder="Enter title" />
+        </div>
+        <div class="form-group">
+          <label>Content</label>
+          <textarea
+            id="postContent"
+            rows="4"
+            placeholder="Enter content"
+          ></textarea>
+        </div>
+        <div class="form-group">
+          <label>Tags (comma separated)</label>
+          <input
+            type="text"
+            id="postTags"
+            placeholder="e.g., tech, programming"
+          />
+        </div>
+        <!--  CHECKBOX FIXED - Proper alignment -->
+        <div class="checkbox-group">
+          <label>
+            <input type="checkbox" id="postPublished" />
+            <span> Publish immediately</span>
+          </label>
+        </div>
+        <button onclick="createPost()" class="btn btn-create">Save Post</button>
+        <button
+          onclick="hideCreateForm()"
+          class="btn"
+          style="background: #6c757d; color: white"
+        >
+          Cancel
+        </button>
+      </div>
+
+      <div id="postsList">
+        <h2>Your Posts</h2>
+        <div id="postsContainer"></div>
+      </div>
+    </div>
+
+    <!-- Image Upload Modal -->
+    <div id="imageModal" class="modal">
+      <div class="modal-content">
+        <h3>Upload Featured Image</h3>
+        <div id="uploadMessage"></div>
+        <form id="imageUploadForm">
+          <div class="form-group">
+            <label>Select Image (JPEG, PNG, WEBP - Max 2MB)</label>
+            <input type="file" id="imageFile" accept="image/*" required />
+          </div>
+          <button type="submit" class="btn btn-upload">Upload</button>
+          <button
+            type="button"
+            onclick="closeImageModal()"
+            class="btn"
+            style="background: #6c757d; color: white"
+          >
+            Cancel
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+      <div class="modal-content">
+        <h3>Edit Post</h3>
+        <div id="editMessage"></div>
+        <form id="editForm">
+          <div class="form-group">
+            <label>Title</label>
+            <input type="text" id="editTitle" required />
+          </div>
+          <div class="form-group">
+            <label>Content</label>
+            <textarea id="editContent" rows="4" required></textarea>
+          </div>
+          <div class="form-group">
+            <label>Tags (comma separated)</label>
+            <input
+              type="text"
+              id="editTags"
+              placeholder="e.g., tech, programming"
+            />
+          </div>
+          <!-- CHECKBOX FIXED IN EDIT MODAL -->
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" id="editPublished" />
+              <span> Publish this post</span>
+            </label>
+          </div>
+          <button type="submit" class="btn btn-edit">Update Post</button>
+          <button
+            type="button"
+            onclick="closeEditModal()"
+            class="btn"
+            style="background: #6c757d; color: white"
+          >
+            Cancel
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <script src="/js/dashboard.js"></script>
+  </body>
+</html>
